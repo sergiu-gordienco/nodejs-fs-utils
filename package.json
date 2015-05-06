@@ -1,6 +1,6 @@
 {
   "name": "nodejs-fs-utils",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "NodeJs FileSystem (FS) extra utilities",
   "main": "index.js",
   "scripts": {
