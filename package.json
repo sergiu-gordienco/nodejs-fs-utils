@@ -1,6 +1,6 @@
 {
   "name": "nodejs-fs-utils",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "NodeJs FileSystem (FS) extra utilities",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sergiu-gordienco/nodejs-mvc.git"
+    "url": "https://github.com/sergiu-gordienco/nodejs-fs-utils.git"
   },
   "keywords": [
     "nodejs",
