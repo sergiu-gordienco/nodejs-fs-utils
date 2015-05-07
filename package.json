@@ -1,6 +1,6 @@
 {
   "name": "nodejs-fs-utils",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "NodeJs FileSystem (FS) extra utilities",
   "main": "index.js",
   "scripts": {
@@ -22,6 +22,7 @@
     "folder size",
     "fs extra",
     "fs utils",
+    "link",
     "node fs utils",
     "nodejs fs utils"
   ],

@@ -2,7 +2,7 @@ var _classes = {
 	fs	: require("fs")
 };
 
-var rmdirAsync = function(path, opts, callback) {
+var rmdirAsync = function(path, callback, opts) {
 	var fs;
 	if (typeof(opts) === "function") {
 		callback	= opts;
@@ -46,11 +46,11 @@ var rmdirAsync = function(path, opts, callback) {
 		files.forEach(function(file) {
 			var curPath = path + "/" + file;
 			fs[opts.symbolicLinks ? 'lstat' : 'stat'](curPath, function(err, stats) {
-				if( err || ( stats && stats.isSymbolicLink() )) {
-					callback(err || new Error("Exception: Symbolic link"), []);
-					return;
-				}
-				if( stats.isDirectory() ) {
+				// if( err || ( stats && stats.isSymbolicLink() )) {
+				// 	callback(err || new Error("Exception: Symbolic link"), []);
+				// 	return;
+				// }
+				if( stats.isDirectory() && !stats.isSymbolicLink() ) {
 					rmdirAsync(curPath, folderDone, opts);
 				} else {
 					fs.unlink(curPath, folderDone);
