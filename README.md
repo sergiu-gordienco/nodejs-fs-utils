@@ -2,8 +2,6 @@
 
 > NodeJs FileSystem (FS) extra utilities
 
-> documentation from **8 may 2015**...
-
 # Instalation
 
 
