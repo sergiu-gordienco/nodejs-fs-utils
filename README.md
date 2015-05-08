@@ -129,7 +129,6 @@
 
 
     // don't count folders size
-    // return an array of all errors
     fsUtils.fsize("newfolder/folder/symbolic-link/subfolder", {
         countFolders    : false
     }, function (err, size) {
@@ -138,7 +137,6 @@
 
 
     // don't scan links and don't count links size
-    // return an array of all errors
     fsUtils.fsize("newfolder/folder/symbolic-link/subfolder", {
         countSymbolicLinks  : false
     }, function (err, size) {
@@ -185,14 +183,12 @@
 
 
     // don't count folders size
-    // return an array of all errors
     var size = fsUtils.fsizeSync("newfolder/folder/symbolic-link/subfolder", {
         countFolders    : false
     });
 
 
     // don't scan links and don't count links size
-    // return an array of all errors
     var size = fsUtils.fsizeSync("newfolder/folder/symbolic-link/subfolder", {
         countSymbolicLinks  : false
     });
