@@ -3,7 +3,7 @@ var fs = require('fs');
 
 module.exports = mkdirs.mkdirs = mkdirs;
 
-function mkdirs (p, opts, f, made) {
+function mkdirs (p, opts, f, callback) {
 	if (typeof opts === 'function') {
 		f = opts;
 		opts = {};
@@ -26,34 +26,34 @@ function mkdirs (p, opts, f, made) {
 	if (mode === undefined) {
 		mode = 0777 & (~process.umask());
 	}
-	if (!made) made = null;
+	if (!callback) callback = null;
 	
 	var cb = f || function () {};
 	p = path.resolve(p);
 	
 	xfs.mkdir(p, mode, function (er) {
 		if (!er) {
-			made = made || p;
-			return cb(null, made);
+			callback = callback || p;
+			return cb(null, callback);
 		}
 		switch (er.code) {
 			case 'ENOENT':
-				mkdirs(path.dirname(p), opts, function (er, made) {
-					if (er) cb(er, made);
-					else mkdirs(p, opts, cb, made);
+				mkdirs(path.dirname(p), opts, function (er, callback) {
+					if (er) cb(er, callback);
+					else mkdirs(p, opts, cb, callback);
 				});
 				break;
 			default:
 				xfs[opts.symbolicLinks ? 'lstat' : 'stat'](p, function (er2, stat) {
-					if (er2 || !stat.isDirectory()) cb(er, made)
-					else cb(null, made);
+					if (er2 || !stat.isDirectory()) cb(er, callback)
+					else cb(null, callback);
 				});
 				break;
 		}
 	});
 }
 
-mkdirs.sync = function sync (p, opts, made) {
+mkdirs.sync = function sync (p, opts, callback) {
 	if (!opts || typeof opts !== 'object') {
 		opts = { mode: opts };
 	}
@@ -72,19 +72,19 @@ mkdirs.sync = function sync (p, opts, made) {
 	if (mode === undefined) {
 		mode = 0777 & (~process.umask());
 	}
-	if (!made) made = null;
+	if (!callback) callback = null;
 
 	p = path.resolve(p);
 
 	try {
 		xfs.mkdirSync(p, mode);
-		made = made || p;
+		callback = callback || p;
 	}
 	catch (err0) {
 		switch (err0.code) {
 			case 'ENOENT' :
-				made = sync(path.dirname(p), opts, made);
-				sync(p, opts, made);
+				callback = sync(path.dirname(p), opts, callback);
+				sync(p, opts, callback);
 				break;
 
 			default:
@@ -100,5 +100,5 @@ mkdirs.sync = function sync (p, opts, made) {
 		}
 	}
 
-	return made;
+	return callback;
 };

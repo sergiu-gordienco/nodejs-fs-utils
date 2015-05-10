@@ -1,8 +1,10 @@
 var _classes = {
-	fs	: require("fs")
+	fs	: require("fs"),
+	path	: require("path")
 };
 
 var rmdirAsync = function(path, callback, opts) {
+	path = _classes.path.normalize(path);
 	var fs;
 	if (typeof(opts) === "function") {
 		callback	= opts;
@@ -25,7 +27,7 @@ var rmdirAsync = function(path, callback, opts) {
 			callback(err);
 		} else {
 			if (!stats.isDirectory()) {
-				fs.unlink(callback);
+				fs.unlink(path, callback);
 			} else {
 				fs.readdir(path, function(err, files) {
 					if(err) {
@@ -51,7 +53,7 @@ var rmdirAsync = function(path, callback, opts) {
 					// Remove one or more trailing slash to keep from doubling up
 					path = path.replace(/\/+$/,"");
 					files.forEach(function(file) {
-						var curPath = path + "/" + file;
+						var curPath = _classes.path.normalize(path + _classes.path.sep + file);
 						fs[opts.symbolicLinks ? 'lstat' : 'stat'](curPath, function(err, stats) {
 							// if( err || ( stats && stats.isSymbolicLink() )) {
 							// 	callback(err || new Error("Exception: Symbolic link"), []);
@@ -73,7 +75,7 @@ var rmdirAsync = function(path, callback, opts) {
 
 rmdirAsync.sync = function (path, opts) {
 	var fs;
-	
+	path = _classes.path.normalize(path);
 	if (typeof(opts) !== "object") {
 		opts	= {};
 	}
@@ -85,10 +87,10 @@ rmdirAsync.sync = function (path, opts) {
 	if (!fs)
 		fs	= opts.fs || _classes.fs;
 	
-	var stats = fs[opts.symbolicLinks ? 'lstatSync' : 'statSync'](curPath);
+	var stats = fs[opts.symbolicLinks ? 'lstatSync' : 'statSync'](path);
 
 	if (!stats.isDirectory()) {
-		fs.unlink(curPath);
+		fs.unlink(path);
 		return;
 	}
 
@@ -98,7 +100,7 @@ rmdirAsync.sync = function (path, opts) {
 	// Remove one or more trailing slash to keep from doubling up
 	path = path.replace(/\/+$/,"");
 	files.forEach(function(file) {
-		var curPath = path + "/" + file;
+		var curPath = _classes.path.normalize(path + _classes.path.sep + file);
 		var stats = fs[opts.symbolicLinks ? 'lstatSync' : 'statSync'](curPath);
 
 		if( stats.isDirectory() && !stats.isSymbolicLink() ) {

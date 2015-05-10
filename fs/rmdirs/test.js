@@ -1,4 +1,4 @@
-var rmdirs = require("index.js");
+var rmdirs = require(__dirname + "/index.js");
 
 rmdirs.sync("test-sync.txt");
 rmdirs.sync("test-sync");
