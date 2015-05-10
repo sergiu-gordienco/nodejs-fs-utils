@@ -1,7 +1,7 @@
 {
   "name": "nodejs-fs-utils",
-  "version": "1.0.20",
-  "description": "NodeJs FileSystem (FS) extra utilities",
+  "version": "1.0.21",
+  "description": "NodeJs FileSystem (FS) extra utilities, walk, fsize ( folder / symlinks / files ), rmdirs, ",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,12 +17,16 @@
     "node",
     "size",
     "walk",
+    "walk sync",
     "dir walk",
     "directory size",
     "folder size",
+    "get folder size",
     "fs extra",
     "fs utils",
     "link",
+    "rmdirs",
+    "mkdirp",
     "node fs utils",
     "nodejs fs utils"
   ],

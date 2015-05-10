@@ -191,3 +191,196 @@
         countSymbolicLinks  : false
     });
 ```
+
+
+# walk - walk throuth files folder and links ( advanced configurations )
+
+> optional can be send *fs* module in `"fs"` option
+> cache reference can be used for storing data while walking
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+
+    // walk througth a list of files and folders in a folder
+    fsUtils.walk("./videos", function (err, path, stats, next, cache) {
+        // callback code
+        // ...
+        // stats.isDirectory()
+        // 
+        // cache.errors is array of errors 
+        // continue walk
+        next();
+    });
+
+    // walk througth a list of files and folders in a folder
+    fsUtils.walk("./videos", function (err, path, stats, next, cache) {
+        // callback code
+        // ...
+        // stats.isDirectory()
+        // 
+        // cache.errors is array of errors 
+        // continue walk
+        next();
+    }, function (cache) {
+        console.log("Walk is finished");
+    });
+
+
+    // treat the symbolic links as folders if these links to directories
+    fsUtils.walk("newfolder/folder/symbolic-link/subfolder", {
+        symbolicLinks : false
+    }, function (err, path, stats, next, cache) {
+        // callback code
+        next();
+    });
+
+
+    // don't stop scanning on errors
+    fsUtils.walk("newfolder/folder/symbolic-link/subfolder", {
+        skipErrors : true
+    }, function (err, path, stats, next, cache) {
+        // callback code
+        next();
+    });
+
+
+    // don't stop scanning on errors
+    // return an array of all errors in cache reference
+    fsUtils.walk("newfolder/folder/symbolic-link/subfolder", {
+        skipErrors  : true,
+        logErrors   : true
+    }, function (err, path, stats, next, cache) {
+        // callback code
+        next();
+    }, function (cache) {
+        if (cache.errors.length) {
+            console.log("Errors: ", cache.errors);
+        } else {
+            console.log("No errors found");
+        }
+    });
+
+```
+
+# walkSync - walk sync throuth files folder and links ( advanced configurations )
+
+> `walkSync` has same api as `walk`, but it is synchronous
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+
+    // walk througth a list of files and folders in a folder
+    fsUtils.walkSync("./videos", function (err, path, stats, next, cache) {
+        // callback code
+        // ...
+        // stats.isDirectory()
+        // 
+        // cache.errors is array of errors 
+        // continue walk
+        next();
+    });
+
+    // walk througth a list of files and folders in a folder
+    fsUtils.walkSync("./videos", function (err, path, stats, next, cache) {
+        // callback code
+        // ...
+        // stats.isDirectory()
+        // 
+        // cache.errors is array of errors 
+        // continue walk
+        next();
+    }, function (cache) {
+        console.log("Walk is finished");
+    });
+
+
+    // treat the symbolic links as folders if these links to directories
+    fsUtils.walkSync("newfolder/folder/symbolic-link/subfolder", {
+        symbolicLinks : false
+    }, function (err, path, stats, next, cache) {
+        // callback code
+        next();
+    });
+
+
+    // don't stop scanning on errors
+    fsUtils.walkSync("newfolder/folder/symbolic-link/subfolder", {
+        skipErrors : true
+    }, function (err, path, stats, next, cache) {
+        // callback code
+        next();
+    });
+
+
+    // don't stop scanning on errors
+    // return an array of all errors in cache reference
+    fsUtils.walkSync("newfolder/folder/symbolic-link/subfolder", {
+        skipErrors  : true,
+        logErrors   : true
+    }, function (err, path, stats, next, cache) {
+        // callback code
+        next();
+    }, function (cache) {
+        if (cache.errors.length) {
+            console.log("Errors: ", cache.errors);
+        } else {
+            console.log("No errors found");
+        }
+    });
+```
+
+# walk - walk throuth files folder and links ( advanced configurations )
+
+> getArray of folders in a array
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+    // getArray of folders in a array
+    var folders = [];
+    fsUtils.walkSync("newfolder/folder/symbolic-link/subfolder", {
+        skipErrors  : true,
+        logErrors   : true
+    }, function (err, path, stats, next, cache) {
+        if (!err && stats.isDirectory()) {
+            folders.push(path);
+        }
+        next();
+    });
+```
+
+> remove folders with name "tmp"
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+    var fs      = require("fs");
+
+    // synchronous
+    fsUtils.walkSync("newfolder/folder/symbolic-link/subfolder", {
+        skipErrors  : true,
+        logErrors   : true
+    }, function (err, path, stats, next, cache) {
+        if (!err && stats.isDirectory() && path.match(/\/tmp$/)) {
+            fs.unlinkSync(path);
+        } else {
+            next();
+        }
+    });
+
+    // asynchronous
+    fsUtils.walk("newfolder/folder/symbolic-link/subfolder", {
+        skipErrors  : true,
+        logErrors   : true
+    }, function (err, path, stats, next, cache) {
+        if (!err && stats.isDirectory() && path.match(/\/tmp$/)) {
+            fs.unlinkSync(path);
+
+            // for async to tell that step is done
+            // without this row onend callback will not be trigered
+            cache.count++;
+        } else {
+            next();
+        }
+    }, function (cache) { // optional
+        console.log("Finished")
+    });
+```
