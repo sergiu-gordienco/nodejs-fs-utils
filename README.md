@@ -2,10 +2,24 @@
 
 > NodeJs FileSystem (FS) extra utilities
 
-# Instalation
+## Methods
 
+ * [rmdirs](#rmdirs) - remove a file or folder even iti isn't empty ( accept specifying logic for symlinks )
+ * [rmdirsSync](#rmdirssync) - synchronous version of rmdirs
+ * [mkdirs](#mkdirs-build-a-directory-tree) - creates a folder and it parent if it is needed ( accept specifying logic for symlinks )
+ * [mkdirsSync](#mkdirssync) - synchronous version of mkdirs
+ * [fsize](#fsize-advanced-file-size-scan-for-links-folders-or-files) - count file or folder size, has additional options
+     `symbolicLinks` - treat symbolic links as files ( default `true` )
+     `countFolders` - counts and folder inode size ( default `true` )
+     `countSymbolicLinks` - counts symbolic links inode size ( default `true` )
+     `logErrors` - log all error in an array ( default `false` )
+     `skipErrors` - skip errors just log them ( default `false` )
+ * [fsizeSync](#fsizesync-file-or-folder-size-synchronous) - synchronous version of fsize
+ * [walk](#walk-walk-throuth-files-folder-and-links-advanced-configurations) - walk throuth files, folder and links ( advanced configurations )
+ * [walkSync](#walksync-walk-sync-throuth-files-folder-and-links-advanced-configurations) - synchronous version of walk
+     * [walk method - examples](#walk-examples)
 
-# rmdirs
+## rmdirs
 
 > optional can be send *fs* module in `"fs"` option
 
@@ -26,7 +40,7 @@
     });
 ```
 
-# rmdirsSync
+## rmdirsSync
 
 ```javascript
     var fsUtils = require("nodejs-fs-utils");
@@ -43,7 +57,7 @@
 ```
 
 
-# mkdirs - build a directory tree
+## mkdirs - build a directory tree
 
 > optional can be send *fs* module in `"fs"` option
 
@@ -64,7 +78,7 @@
     });
 ```
 
-# mkdirsSync
+## mkdirsSync
 
 ```javascript
     var fsUtils = require("nodejs-fs-utils");
@@ -81,7 +95,7 @@
 
 
 
-# fsize - advance file size scan for links folders or files
+## fsize - advanced file size scan for links folders or files
 
 > optional can be send *fs* module in `"fs"` option
 
@@ -142,7 +156,7 @@
     });
 ```
 
-# fsizeSync - file or folder size sync
+## fsizeSync - file or folder size synchronous
 
 ```javascript
     var fsUtils = require("nodejs-fs-utils");
@@ -193,7 +207,7 @@
 ```
 
 
-# walk - walk throuth files folder and links ( advanced configurations )
+## walk - walk throuth files folder and links ( advanced configurations )
 
 > optional can be send *fs* module in `"fs"` option
 > cache reference can be used for storing data while walking
@@ -262,7 +276,7 @@
 
 ```
 
-# walkSync - walk sync throuth files folder and links ( advanced configurations )
+## walkSync - walk sync throuth files folder and links ( advanced configurations )
 
 > `walkSync` has same api as `walk`, but it is synchronous
 
@@ -329,7 +343,7 @@
     });
 ```
 
-# walk - walk throuth files folder and links ( advanced configurations )
+## walk - examples
 
 > getArray of folders in a array
 
