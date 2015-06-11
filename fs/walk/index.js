@@ -43,8 +43,13 @@ var walk = function(path, opts, callback, onend_callback) {
 	var cache	= {
 		count	: 0,
 		wait	: 0,
+		files	: 0,
+		dirs	: 0,
+		fsnodes	: 0,
 		errors	: []
 	};
+	var finalCallback	= false;
+	var fnc	= 0;
 	var errorsSend	= false;
 	var _tick	= function (err, path, stats, next) {
 		if (cache.errors.length && !opts.skipErrors) {
@@ -54,7 +59,9 @@ var walk = function(path, opts, callback, onend_callback) {
 			}
 			return;
 		} else if (!next) {
-			if (cache.wait == cache.count) {
+			if (cache.wait == cache.count/* && !finalCallback*/) {
+				finalCallback	= true;
+				// console.log("\033[31;7m wait = count ; [", fnc++, "] ", cache, "\033[0m");
 				onend_callback((opts.logErrors ? cache.errors : cache.errors[0]), cache);
 			}
 		} else {
@@ -62,22 +69,24 @@ var walk = function(path, opts, callback, onend_callback) {
 		}
 	};
 	var _next_empty	= function () {
+		cache.count++;
 		_tick();
 	};
 	var _next	= function (path) {
 		if (path) {
+			cache.fsnodes++;
 			cache.wait++;
 			fs[opts.symbolicLinks ? 'lstat' : 'stat'](path, function(err, stats) {
 				if (err) {
 					if (opts.logErrors || !cache.errors.length) {
 						cache.errors.push(err);
 					}
-					cache.count++;
 					_tick(err, path, stats, _next_empty);
 				} else if (!stats.isDirectory() || stats.isSymbolicLink()) {
-					cache.count++;
+					cache.files++;
 					_tick(err, path, stats, _next_empty);
 				} else {
+					cache.dirs++;
 					cache.wait++;
 					_tick(err, path, stats, function () {
 						cache.count++;
@@ -91,7 +100,6 @@ var walk = function(path, opts, callback, onend_callback) {
 									_next(path + ( path[path.length -1] === separator ? "" : separator ) + file);
 								});
 							}
-							cache.count++;
 							_next_empty();
 						});
 					});
@@ -141,6 +149,9 @@ var walkSync = function(path, opts, callback, onend_callback) {
 		fs	= opts.fs || _classes.fs;
 	
 	var cache	= {
+		files	: 0,
+		dirs	: 0,
+		fsnodes	: 0,
 		errors	: []
 	};
 
@@ -170,9 +181,11 @@ var walkSync = function(path, opts, callback, onend_callback) {
 				_tick(err, path, stats, _next_empty);
 			} else if (!stats.isDirectory() || stats.isSymbolicLink()) {
 				_tick(err, path, stats, _next_empty);
+				cache.files++;
 			} else {
 				err	= undefined;
 				er	= undefined;
+				cache.dirs++;
 				_tick(err, path, stats, function () {
 					var files;
 					try {
