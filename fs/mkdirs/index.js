@@ -31,6 +31,7 @@ function mkdirs (p, opts, f, callback) {
 	var cb = f || function () {};
 	p = path.resolve(p);
 	
+	// console.log("\033[7;32m", p, "\033[0m");
 	xfs.mkdir(p, mode, function (er) {
 		if (!er) {
 			callback = callback || p;

@@ -21,7 +21,6 @@ var rmdirAsync = function(path, callback, opts) {
 
 	if (!fs)
 		fs	= opts.fs || _classes.fs;
-	
 	fs[opts.symbolicLinks ? 'lstat' : 'stat'](path, function (err, stats) {
 		if (err) {
 			callback(err);
@@ -35,37 +34,41 @@ var rmdirAsync = function(path, callback, opts) {
 						callback(err, []);
 						return;
 					}
-					var wait = files.length,
-						count = 0,
-						folderDone = function(err) {
-						count++;
-						// If we cleaned out all the files, continue
-						if( count >= wait || err) {
+					// Remove one or more trailing slash to keep from doubling up
+					path = path.replace(/\/+$/,"");
+					var next	= function () {
+						if (files.length) {
+							var file	= files.shift();
+							var curPath = _classes.path.normalize(path + _classes.path.sep + file);
+							fs[opts.symbolicLinks ? 'lstat' : 'stat'](curPath, function(err, stats) {
+								if( err || ( stats && stats.isSymbolicLink() )) {
+									callback(err || Error("Exception: Symbolic link"), []);
+									return;
+								} else {
+									if( stats.isDirectory() && !stats.isSymbolicLink() ) {
+										rmdirAsync(curPath, function (err) {
+											if (err) {
+												callback(err);
+											} else {
+												next();
+											}
+										}, opts);
+									} else {
+										fs.unlink(curPath, function (err) {
+											if (err) {
+												callback(err);
+											} else {
+												next();
+											}
+										});
+									}
+								}
+							});
+						} else {
 							fs.rmdir(path,callback);
 						}
 					};
-					// Empty directory to bail early
-					if(!wait) {
-						folderDone();
-						return;
-					}
-					
-					// Remove one or more trailing slash to keep from doubling up
-					path = path.replace(/\/+$/,"");
-					files.forEach(function(file) {
-						var curPath = _classes.path.normalize(path + _classes.path.sep + file);
-						fs[opts.symbolicLinks ? 'lstat' : 'stat'](curPath, function(err, stats) {
-							// if( err || ( stats && stats.isSymbolicLink() )) {
-							// 	callback(err || new Error("Exception: Symbolic link"), []);
-							// 	return;
-							// }
-							if( stats.isDirectory() && !stats.isSymbolicLink() ) {
-								rmdirAsync(curPath, folderDone, opts);
-							} else {
-								fs.unlink(curPath, folderDone);
-							}
-						});
-					});
+					next();
 				});
 			}
 		}

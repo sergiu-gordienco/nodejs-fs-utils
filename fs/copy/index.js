@@ -1,6 +1,6 @@
 var _classes = {
 	fs	: require("fs"),
-	fsu	: require("../../index.js"),
+	fsu	: require(__dirname + "/../../lib.js")(['walk', 'mkdirs']),
 	path	: require("path")
 };
 
@@ -45,6 +45,7 @@ var copyFileSync	= function (srcFile, destFile) {
 };
 
 var path_dest	= function (source, dest, path, mode) {
+	// mode "auto", "none", "relative", "absolute"
 	// TODO mode: relative absolute auto none
 	// console.log("\033[7m",source, '../', dest, path, "\033[0m");
 	// console.log("\033[7;32m",_classes.path.resolve(_classes.path.resolve(source, '../', dest), _classes.path.relative(source, path)), "\033[0m");
@@ -166,7 +167,7 @@ var copy = function(path_source, dest, callback, opts) {
 			next();
 		}
 	}, function (errors, cache) {
-		callback((new Date() + "") + " » ", errors, cache);
+		callback(errors, cache);
 	});
 };
 
@@ -287,7 +288,7 @@ var copySync = function(path_source, dest, callback, opts) {
 			next();
 		}
 	}, function (errors, cache) {
-		callback((new Date() + "") + " » ", errors, cache);
+		callback(errors, cache);
 	});
 };
 
