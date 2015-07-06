@@ -55,8 +55,15 @@ var getLibrary	= function (list) {
 		lib.isEmpty	= mrequire("emptydir").isEmpty;
 		lib.isEmptySync	= mrequire("emptydir").isEmpty.sync;
 	}
+	if (list.indexOf('output') !== -1) {
+		mrequire("output", __dirname + "/fs/output/index.js");
+		lib.createFile	= mrequire("output").createFile;
+		lib.createFileSync	= mrequire("output").createFile.sync;
+		lib.ensureFile	= mrequire("output").createFile;
+		lib.ensureFileSync	= mrequire("output").createFile.sync;
+	}
 	return lib;
 };
 
-getLibrary.allList	= ['copy', 'move', 'rmdirs', 'fsize', 'walk', 'mkdirs', 'emptydir'];
+getLibrary.allList	= ['copy', 'move', 'rmdirs', 'fsize', 'walk', 'mkdirs', 'emptydir', 'output'];
 module.exports	= getLibrary;

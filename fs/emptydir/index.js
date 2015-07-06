@@ -21,13 +21,13 @@ isEmpty.sync = function (path) {
 
 var emptyDir	= function (path, callback, opts) {
 	_classes.fs.readdir(path, function (err, files) {
-		if (err === null) {
+		if (!err) {
 			var next	= function () {
-				console.log(files)
+				// console.log(files)
 				if (Array.isArray(files) && files.length) {
 					var file	= files.shift();
 					_classes.fsu.rmdirs(_classes.path.join(path, file), function (err) {
-						console.log("\033[33m", _classes.path.join(path, file), err, "\033[0m");
+						// console.log("\033[33m", _classes.path.join(path, file), err, "\033[0m");
 						if (err) {
 							callback(err);
 						} else {

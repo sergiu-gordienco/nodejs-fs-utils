@@ -4,24 +4,58 @@
 
 ## Methods
 
- * [rmdirs](#rmdirs) - remove a file or folder even iti isn't empty ( accept specifying logic for symlinks )
- * [rmdirsSync](#rmdirssync) - synchronous version of rmdirs
+ * [rmdirs](#rmdirs) - remove a file or folder even it isn't empty ( accept specifying logic for symlinks )
+ * [rmdirsSync](#rmdirssync) - _synchronous version of_ **rmdirs**
  * [mkdirs](#mkdirs-build-a-directory-tree) - creates a folder and it parent if it is needed ( accept specifying logic for symlinks )
- * [mkdirsSync](#mkdirssync) - synchronous version of mkdirs
+ * [mkdirsSync](#mkdirssync) - _synchronous version of_ **mkdirs**
+ * [emptyDir](#emptydir)         - remove contents of a dir
+ * [emptyDirSync](#emptydirsync) - _synchronous version of_ **emptyDir**
+ * [isEmpty](#isempty)           - return if file is empty or not
+ * [isEmptySync](#isemptysync)   - _synchronous version of_ **isEmpty**
+ * [remove](#remove)             - remove file, directory or link
+ * [removeSync](#removesync)     - _synchronous version of_ **remove**
+     `symbolicLinks` - treat symbolic links as files ( default `true` )
+     `skipErrors` - skip errors just log them ( default `false` )
  * [fsize](#fsize-advanced-file-size-scan-for-links-folders-or-files) - count file or folder size, has additional options
      `symbolicLinks` - treat symbolic links as files ( default `true` )
      `countFolders` - counts and folder inode size ( default `true` )
      `countSymbolicLinks` - counts symbolic links inode size ( default `true` )
      `logErrors` - log all error in an array ( default `false` )
      `skipErrors` - skip errors just log them ( default `false` )
- * [fsizeSync](#fsizesync-file-or-folder-size-synchronous) - synchronous version of fsize
+ * [fsizeSync](#fsizesync-file-or-folder-size-synchronous) - _synchronous version of_ **fsize**
+ * [move](#move)                 - move files or folders
+ * [moveSync](#movesync)         - _synchronous version of_ **move**
+     `symlinksKeep`      - specify how to treat symlinks
+         accepted values: *"file", "directory", "all"*
+     `symlinksNormalize` - specify if is needed link normalizing
+         accepted values: *"auto", "none", "relative", "absolute"*
+     `linkFiles`         - for files linking instead of coping
+         accepted values: *"auto", "none", "relative", "absolute"*
+     `symbolicLinks` - treat symbolic links as files ( default `true` )
+     `countFolders` - counts and folder inode size ( default `true` )
+     `countSymbolicLinks` - counts symbolic links inode size ( default `true` )
+     `logErrors` - log all error in an array ( default `false` )
+     `skipErrors` - skip errors just log them ( default `false` )
+ * [copy](#copy)                 - copy files or folders
+ * [copySync](#copysync)         - _synchronous version of_ **copy**
+     `symlinksKeep`      - specify how to treat symlinks
+         accepted values: *"file", "directory", "all"*
+     `symlinksNormalize` - specify if is needed link normalizing
+         accepted values: *"auto", "none", "relative", "absolute"*
+     `linkFiles`         - for files linking instead of coping
+         accepted values: *"auto", "none", "relative", "absolute"*
+     `symbolicLinks` - treat symbolic links as files ( default `true` )
+     `countFolders` - counts and folder inode size ( default `true` )
+     `countSymbolicLinks` - counts symbolic links inode size ( default `true` )
+     `logErrors` - log all error in an array ( default `false` )
+     `skipErrors` - skip errors just log them ( default `false` )
  * [walk](#walk-walk-throuth-files-folder-and-links-advanced-configurations) - walk throuth files, folder and links ( advanced configurations )
  * [walkSync](#walksync-walk-sync-throuth-files-folder-and-links-advanced-configurations) - synchronous version of walk
      * [walk method - examples](#walk-examples)
 
 ## rmdirs
 
-> optional can be send *fs* module in `"fs"` option
+> optional can be send *fs* module in `"fs"` option, P.S. it removes link files or directories.
 
 ```javascript
     var fsUtils = require("nodejs-fs-utils");
@@ -38,6 +72,13 @@
     }, {
         symbolicLinks : false
     });
+
+    // try to remove, skip errors
+    fsUtils.rmdirs("test/folder", function (err) {
+        // callback code
+    }, {
+        skipErrors      : true
+    });
 ```
 
 ## rmdirsSync
@@ -47,14 +88,70 @@
 
     // removing a folder
     // symbolic links will be unlinked instead of removing files from them
-    fsUtils.rmdirs("test/folder");
+    fsUtils.rmdirsSync("test/folder");
 
     // removing a folder and remove recursive in symbolic links
     // treat the symbolic links as folders if these links to directories
-    fsUtils.rmdirs("test/folder", {
+    fsUtils.rmdirsSync("test/folder", {
         symbolicLinks : false
     });
+
+    // try to remove, skip errors
+    fsUtils.rmdirsSync("test/folder", {
+        skipErrors      : true
+    });
 ```
+
+
+## emptyDir
+
+> remove contents of a directory
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+
+    // removing folder's contents
+    fsUtils.emptyDir("test/folder", function (err) {
+        // callback code
+    });
+```
+
+## emptyDirSync
+
+> remove contents of a directory, synchronous
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+
+    // removing folder's contents
+    fsUtils.emptyDirSync("test/folder");
+```
+
+## isEmpty
+
+> checks if folder is empty
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+
+    // return state = true if folder is empty
+    fsUtils.isEmpty("test/folder", function (err, state) {
+        // callback code
+    });
+```
+
+## isEmptySync
+
+> checks if folder is empty, synchronous
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+
+    // return state = true if folder is empty
+    fsUtils.isEmptySync("test/folder");
+```
+
+
 
 
 ## mkdirs - build a directory tree
@@ -93,6 +190,18 @@
     });
 ```
 
+
+## remove
+
+> removing file or directories
+
+> similar / alias as [rmdirs](#rmdirs), click [here](#rmdirs) to view.
+
+## removeSync
+
+> removing file or directories
+
+> similar / alias as [rmdirs](#rmdirssync), click [here](#rmdirssync) to view.
 
 
 ## fsize - advanced file size scan for links folders or files
@@ -206,6 +315,201 @@
     });
 ```
 
+## move
+> move file of folders or links
+
+### options for move function:
+
+- `symlinksNormalize` - specify how to treat symlinks
+    specify if is needed link normalizing
+    accepted values: `"auto"`, `"none"`, `"relative"`, `"absolute"`
+    `"auto"`, `"none"` or `"absolute"`  - uses absolute path
+    `"relative"`                        - uses relative paths for links
+    **P.S** `"auto"` will be dynamic in future, will try to use relative if it is posible
+ -  `symlinksKeep` - specify if is needed to keep simplinks or to move files or folders
+    accepted values: *"file", "directory", "all"*
+ -  `linkFiles`         - for files linking instead of moving
+    accepted values: *"auto", "none", "relative", "absolute"*
+ -  `symbolicLinks` - treat symbolic links as files ( default `true` )
+ -  `countFolders` - counts and folder inode size ( default `true` )
+ -  `countSymbolicLinks` - counts symbolic links inode size ( default `true` )
+ -  `logErrors` - log all error in an array ( default `false` )
+ -  `skipErrors` - skip errors just log them ( default `false` )
+    **P.S.** if is `true` the errors will be an array
+
+### move examples:
+
+### moveSync examples:
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+
+    // move file or folders
+    fsUtils.move(__dirname + "/source", "./destination-path", function (err, cache) {
+        if (!err) {
+            console.log("Moved !");
+        } else {
+            console.error("Error", err)
+        }
+    });
+
+    // move files and skip errors
+    fsUtils.move(__dirname + "/source", "./destination-path", function (errors, cache) {
+        if (!errors.length) {
+            console.log("Moved !");
+        } else {
+            errors.forEach(function (err) {
+                console.error("Error", err)
+            });
+        }
+    }, {
+        skipErrors  : true
+    });
+
+```
+
+## moveSync
+
+> synchronous version for move function
+
+### moveSync examples:
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+    var moveSync    = fsUtils.moveSync;
+
+    // move file or folders
+    moveSync(__dirname + "/source", "./destination-path", function (err, cache) {
+        if (!err) {
+            console.log("Moved !");
+        } else {
+            console.error("Error", err)
+        }
+    });
+
+    // move files and skip errors
+    moveSync(__dirname + "/source", "./destination-path", function (errors, cache) {
+        if (!errors.length) {
+            console.log("Moved !");
+        } else {
+            errors.forEach(function (err) {
+                console.error("Error", err)
+            });
+        }
+    }, {
+        skipErrors  : true
+    });
+
+```
+
+## copy
+> copy file of folders or links
+
+### options for copy function:
+
+- `symlinksNormalize` - specify how to treat symlinks
+    specify if is needed link normalizing
+    accepted values: `"auto"`, `"none"`, `"relative"`, `"absolute"`
+    `"auto"`, `"none"` or `"absolute"`  - uses absolute path
+    `"relative"`                        - uses relative paths for links
+    **P.S** `"auto"` will be dynamic in future, will try to use relative if it is posible
+ -  `symlinksKeep` - specify if is needed to keep simplinks or to copy files or folders
+    accepted values: *"file", "directory", "all"*
+ -  `linkFiles`         - for files linking instead of coping
+    accepted values: *"auto", "none", "relative", "absolute"*
+ -  `symbolicLinks` - treat symbolic links as files ( default `true` )
+ -  `countFolders` - counts and folder inode size ( default `true` )
+ -  `countSymbolicLinks` - counts symbolic links inode size ( default `true` )
+ -  `logErrors` - log all error in an array ( default `false` )
+ -  `skipErrors` - skip errors just log them ( default `false` )
+    **P.S.** if is `true` the errors will be an array
+
+### copy examples:
+
+### copySync examples:
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+
+    // copy file or folders
+    fsUtils.copy(__dirname + "/source", "./destination-path", function (err, cache) {
+        if (!err) {
+            console.log("Copied !");
+        } else {
+            console.error("Error", err)
+        }
+    });
+
+    // copy files and skip errors
+    fsUtils.copy(__dirname + "/source", "./destination-path", function (errors, cache) {
+        if (!errors.length) {
+            console.log("Copied !");
+        } else {
+            errors.forEach(function (err) {
+                console.error("Error", err)
+            });
+        }
+    }, {
+        skipErrors  : true
+    });
+
+    // link files instead of copying
+    fsUtils.copy(__dirname + "/source", "./destination-path", function (err, cache) {
+        if (!err) {
+            console.log("Files were linked !");
+        } else {
+            console.error("Error", err)
+        }
+    }, {
+        linkFiles   : "relative"
+    });
+
+```
+
+## copySync
+
+> synchronous version for copy function
+
+### copySync examples:
+
+```javascript
+    var fsUtils = require("nodejs-fs-utils");
+    var copySync    = fsUtils.copySync;
+
+    // copy file or folders
+    copySync(__dirname + "/source", "./destination-path", function (err, cache) {
+        if (!err) {
+            console.log("Copied !");
+        } else {
+            console.error("Error", err)
+        }
+    });
+
+    // copy files and skip errors
+    copySync(__dirname + "/source", "./destination-path", function (errors, cache) {
+        if (!errors.length) {
+            console.log("Copied !");
+        } else {
+            errors.forEach(function (err) {
+                console.error("Error", err)
+            });
+        }
+    }, {
+        skipErrors  : true
+    });
+
+    // link files instead of copying
+    copySync(__dirname + "/source", "./destination-path", function (err, cache) {
+        if (!err) {
+            console.log("Files were linked !");
+        } else {
+            console.error("Error", err)
+        }
+    }, {
+        linkFiles   : "relative"
+    });
+
+```
 
 ## walk - walk throuth files folder and links ( advanced configurations )
 

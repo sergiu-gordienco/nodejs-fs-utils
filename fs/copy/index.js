@@ -49,7 +49,19 @@ var path_dest	= function (source, dest, path, mode) {
 	// TODO mode: relative absolute auto none
 	// console.log("\033[7m",source, '../', dest, path, "\033[0m");
 	// console.log("\033[7;32m",_classes.path.resolve(_classes.path.resolve(source, '../', dest), _classes.path.relative(source, path)), "\033[0m");
-	return _classes.path.resolve(_classes.path.resolve(source, '../', dest), _classes.path.relative(source, path));
+	var destPathAbsolute	= _classes.path.resolve(_classes.path.resolve(source, '../', dest), _classes.path.relative(source, path));
+	if (mode === "absolute") {
+		return destPathAbsolute;
+	} else if (mode === "relative") {
+		return _classes.path.relative(source, destPathAbsolute);
+	} else if (mode === "none") {
+		if (isSymbolicLink) {
+			return destPathAbsolute;
+		} else {
+			return destPathAbsolute;
+		}
+	}
+	return destPathAbsolute;
 };
 
 var copy = function(path_source, dest, callback, opts) {
