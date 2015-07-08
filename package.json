@@ -1,6 +1,6 @@
 {
   "name": "nodejs-fs-utils",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "description": "NodeJs FileSystem (FS) extra utilities, walk, fsize ( folder / symlinks / files ), rmdirs, ",
   "main": "index.js",
   "scripts": {
