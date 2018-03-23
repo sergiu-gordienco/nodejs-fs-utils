@@ -37,12 +37,20 @@ var walk = function(path, opts, callback, onend_callback) {
 		opts.logErrors	= false;
 	}
 
-	if (!fs)
+	if (typeof(opts.stackPushEnd) === "undefined") {
+		opts.stackPushEnd	= false;
+	}
+
+	if (!fs) {
 		fs	= opts.fs || _classes.fs;
-	
+	}
+
 	var cache	= {
+		stack   : [],
 		count	: 0,
-		wait	: 0,
+		get wait() {
+			return cache.stack.length;
+		},
 		files	: 0,
 		dirs	: 0,
 		fsnodes	: 0,
@@ -51,64 +59,64 @@ var walk = function(path, opts, callback, onend_callback) {
 	var finalCallback	= false;
 	var fnc	= 0;
 	var errorsSend	= false;
-	var _tick	= function (err, path, stats, next) {
+
+
+	var _tick	= function () {
 		if (cache.errors.length && !opts.skipErrors) {
 			if (!errorsSend) {
 				errorsSend	= true;
-				onend_callback((opts.logErrors ? cache.errors : cache.errors[0]), cache);
+				if (!finalCallback) {
+					finalCallback = true;
+					onend_callback((opts.logErrors ? cache.errors : cache.errors[0]), cache);
+				}
 			}
 			return;
-		} else if (!next) {
-			if (cache.wait == cache.count/* && !finalCallback*/) {
-				finalCallback	= true;
-				// console.log("\033[31;7m wait = count ; [", fnc++, "] ", cache, "\033[0m");
+		} else if (cache.stack.length === 0) {
+			if (!finalCallback) {
+				finalCallback = true;
 				onend_callback((opts.logErrors ? cache.errors : cache.errors[0]), cache);
 			}
 		} else {
-			callback(err, path, stats, next, cache);
-		}
-	};
-	var _next_empty	= function () {
-		cache.count++;
-		_tick();
-	};
-	var _next	= function (path) {
-		if (path) {
+			var path = cache.stack.shift();
 			cache.fsnodes++;
-			cache.wait++;
 			fs[opts.symbolicLinks ? 'lstat' : 'stat'](path, function(err, stats) {
 				if (err) {
 					if (opts.logErrors || !cache.errors.length) {
 						cache.errors.push(err);
 					}
-					_tick(err, path, stats, _next_empty);
+					callback(err, path, stats, _tick, cache);
 				} else if (!stats.isDirectory() || stats.isSymbolicLink()) {
+					cache.count++;
 					cache.files++;
-					_tick(err, path, stats, _next_empty);
+					callback(err, path, stats, _tick, cache);
 				} else {
+					cache.count++;
 					cache.dirs++;
-					cache.wait++;
-					_tick(err, path, stats, function () {
-						cache.count++;
-						fs.readdir(path, function(err, files) {
-							if(err) {
-								if (opts.logErrors || !cache.errors.length) {
-									cache.errors.push(err);
-								}
+					fs.readdir(path, function(err, files) {
+						if(err) {
+							if (opts.logErrors || !cache.errors.length) {
+								cache.errors.push(err);
+							}
+						} else {
+							if (opts.stackPushEnd) {
+								files.forEach(function (file) {
+									cache.stack.push(path + ( path[path.length -1] === separator ? "" : separator ) + file);									
+								});
 							} else {
 								files.forEach(function (file) {
-									_next(path + ( path[path.length -1] === separator ? "" : separator ) + file);
+									cache.stack.unshift(path + ( path[path.length -1] === separator ? "" : separator ) + file);
 								});
 							}
-							_next_empty();
-						});
+						}
+						callback(err, path, stats, _tick, cache);
 					});
-					
 				}
 			});
 		}
 	};
-	_next(path);
+
+	cache.stack.push(path);
+	_tick();
 };
 
 var walkSync = function(path, opts, callback, onend_callback) {

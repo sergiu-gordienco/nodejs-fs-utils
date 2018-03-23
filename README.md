@@ -691,7 +691,8 @@
     // asynchronous
     fsUtils.walk("newfolder/folder/symbolic-link/subfolder", {
         skipErrors  : true,
-        logErrors   : true
+        logErrors   : true,
+        stackPushEnd: true // push new observed files to end of the stack insteat of beginig        
     }, function (err, path, stats, next, cache) {
         if (!err && stats.isDirectory() && path.match(/\/tmp$/)) {
             fs.unlinkSync(path);
