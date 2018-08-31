@@ -105,7 +105,7 @@ var copy = function(path_source, dest, callback, opts) {
 			});
 		} else if (stats.isSymbolicLink()) {
 			var symPath	= undefined;
-			_classes.fs.stats(path, function (err, stats) {
+			_classes.fs.stat(path, function (err, stats) {
 				if (err) {
 					next();
 				} else {
