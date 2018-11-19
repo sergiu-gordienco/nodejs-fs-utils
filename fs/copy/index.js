@@ -130,14 +130,14 @@ var copy = function(path_source, dest, callback, opts) {
 						if (opts.keepSymlinks === "file" || opts.keepSymlinks === "all") {
 							_classes.fs.symlink(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file', function (err) {
 								if (err) {
-									cache.errors.push(new Error("Falied to link [File]", { stats: stats, dest: dest, path: path, err: err }));
+									cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
 								}
 								next();
 							});
 						} else {
 							copyFile(path, path_dest(path_source, dest, path), function (err) {
 								if (err) {
-									cache.errors.push(new Error("Falied to copy [File]", { stats: stats, dest: dest, path: path, err: err }));
+									cache.errors.push(new Error("Falied to copy [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
 								}
 								next();
 							});
@@ -150,7 +150,7 @@ var copy = function(path_source, dest, callback, opts) {
 			if (opts.linkFiles !== "none") {
 				_classes.fs.symlink(path, path_dest(path_source, dest, path, opts.linkFiles), 'file', function (err) {
 					if (err) {
-						cache.errors.push(new Error("Falied to link [File]", { stats: stats, dest: dest, path: path, err: err }));
+						cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
 					}
 					next();
 				});
@@ -225,7 +225,7 @@ var copySync = function(path_source, dest, callback, opts) {
 		} else if (stats.isSymbolicLink()) {
 			var symPath	= undefined;
 			try {
-				stats = _classes.fs.statsSync(path);
+				stats = _classes.fs.statSync(path);
 
 				if (stats.isDirectory()) {
 					if (opts.keepSymlinks === "directory" || opts.keepSymlinks === "all") {

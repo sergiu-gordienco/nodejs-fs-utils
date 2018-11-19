@@ -10,17 +10,17 @@ var walk = function(path, opts, callback, onend_callback) {
 
 
 	if (typeof(opts) === "function") {
-		callback	= opts;
-		opts	= {};
 		if (typeof(callback) === "function") {
 			onend_callback	= callback;
 		}
+		callback	= opts;
+		opts	= {};
 	}
 
 	if (typeof(onend_callback) !== "function") {
 		onend_callback	= function () {};
 	}
-	
+
 	if (typeof(opts) !== "object") {
 		opts	= {};
 	}
@@ -100,7 +100,7 @@ var walk = function(path, opts, callback, onend_callback) {
 						} else {
 							if (opts.stackPushEnd) {
 								files.forEach(function (file) {
-									cache.stack.push(path + ( path[path.length -1] === separator ? "" : separator ) + file);									
+									cache.stack.push(path + ( path[path.length -1] === separator ? "" : separator ) + file);
 								});
 							} else {
 								files.forEach(function (file) {
@@ -126,17 +126,17 @@ var walkSync = function(path, opts, callback, onend_callback) {
 
 
 	if (typeof(opts) === "function") {
-		callback	= opts;
-		opts	= {};
 		if (typeof(callback) === "function") {
 			onend_callback	= callback;
 		}
+		callback	= opts;
+		opts	= {};
 	}
 
 	if (typeof(onend_callback) !== "function") {
 		onend_callback	= function () {};
 	}
-	
+
 	if (typeof(opts) !== "object") {
 		opts	= {};
 	}
@@ -155,7 +155,7 @@ var walkSync = function(path, opts, callback, onend_callback) {
 
 	if (!fs)
 		fs	= opts.fs || _classes.fs;
-	
+
 	var cache	= {
 		files	: 0,
 		dirs	: 0,
