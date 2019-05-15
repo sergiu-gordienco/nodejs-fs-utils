@@ -158,7 +158,7 @@ rmdirAsync.sync = function (path, opts) {
 
 	if (!stats.isDirectory()) {
 		try {
-			fs.unlink(path);
+			fs.unlinkSync(path);
 		} catch (err) {
 			if (!opts.skipErrors) {
 				throw (err);
