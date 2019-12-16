@@ -1,2 +1,2 @@
-var	getLib	= require(__dirname + "/lib.js");
+var	getLib	= require("./lib.js");
 module.exports	= getLib(getLib.allList);
