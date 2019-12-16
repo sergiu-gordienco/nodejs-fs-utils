@@ -68,7 +68,7 @@ var rmdirAsync = function(path, callback, opts) {
 							var file	= files.shift();
 							var curPath = _classes.path.normalize(path + _classes.path.sep + file);
 							fs[opts.symbolicLinks ? 'lstat' : 'stat'](curPath, function(err, stats) {
-								if( err || ( stats && stats.isSymbolicLink() )) {
+								if( err || ( stats && stats.isSymbolicLink() && !opts.symbolicLinks )) {
 									if (opts.skipErrors) {
 										errors.push(err || Error("Exception: Symbolic link"));
 										next();
