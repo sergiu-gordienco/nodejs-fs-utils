@@ -55,11 +55,7 @@ var path_dest	= function (source, dest, path, mode) {
 	} else if (mode === "relative") {
 		return _classes.path.relative(source, destPathAbsolute);
 	} else if (mode === "none") {
-		if (isSymbolicLink) {
-			return destPathAbsolute;
-		} else {
-			return destPathAbsolute;
-		}
+		return destPathAbsolute;
 	}
 	return destPathAbsolute;
 };
@@ -111,12 +107,28 @@ var copy = function(path_source, dest, callback, opts) {
 				} else {
 					if (stats.isDirectory()) {
 						if (opts.keepSymlinks === "directory" || opts.keepSymlinks === "all") {
-							_classes.fs.symlink(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'dir', function (err) {
-								if (err) {
-									cache.errors.push(new Error("Falied to link [Directory]", { stats: stats, path: path, dest: dest, err: err }));
-								}
-								next();
-							});
+							if (opts.symlinksNormalize === "none") {
+								_classes.fs.readlink(path, 'utf-8', function (err, symlinkPath) {
+									if (err) {
+										cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
+									} else {
+										symlinkPath = path;
+									}
+									_classes.fs.symlink(symlinkPath, path_dest(path_source, dest, path, opts.symlinksNormalize), 'dir', function (err) {
+										if (err) {
+											cache.errors.push(new Error("Falied to link [Directory]", { stats: stats, path: path, dest: dest, err: err }));
+										}
+										next();
+									});
+								});
+							} else {
+								_classes.fs.symlink(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'dir', function (err) {
+									if (err) {
+										cache.errors.push(new Error("Falied to link [Directory]", { stats: stats, path: path, dest: dest, err: err }));
+									}
+									next();
+								});
+							}
 						} else {
 							_classes.fsu.mkdirs(path_dest(path_source, dest, path), function (err) {
 								if (err) {
@@ -128,12 +140,28 @@ var copy = function(path_source, dest, callback, opts) {
 					} else {
 						// for file and other types
 						if (opts.keepSymlinks === "file" || opts.keepSymlinks === "all") {
-							_classes.fs.symlink(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file', function (err) {
-								if (err) {
-									cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
-								}
-								next();
-							});
+							if (opts.symlinksNormalize === "none") {
+								_classes.fs.readlink(path, 'utf-8', function (err, symlinkPath) {
+									if (err) {
+										cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
+									} else {
+										symlinkPath = path;
+									}
+									_classes.fs.symlink(symlinkPath, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file', function (err) {
+										if (err) {
+											cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
+										}
+										next();
+									});
+								});
+							} else {
+								_classes.fs.symlink(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file', function (err) {
+									if (err) {
+										cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
+									}
+									next();
+								});
+							}
 						} else {
 							copyFile(path, path_dest(path_source, dest, path), function (err) {
 								if (err) {
@@ -230,7 +258,15 @@ var copySync = function(path_source, dest, callback, opts) {
 				if (stats.isDirectory()) {
 					if (opts.keepSymlinks === "directory" || opts.keepSymlinks === "all") {
 						try {
-							_classes.fs.symlinkSync(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'dir');
+							if (opts.symlinksNormalize === "none") {
+								_classes.fs.symlinkSync(
+									_classes.fs.readlinkSync(path, 'utf-8'),
+									path_dest(path_source, dest, path, opts.symlinksNormalize),
+									'dir'
+								);
+							} else {
+								_classes.fs.symlinkSync(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'dir');
+							}
 						} catch (err) {
 							cache.errors.push(new Error("Falied to link [Directory]", { stats: stats, path: path, dest: dest, err: err }));
 						}
@@ -247,7 +283,15 @@ var copySync = function(path_source, dest, callback, opts) {
 					// for file and other types
 					if (opts.keepSymlinks === "file" || opts.keepSymlinks === "all") {
 						try {
-							_classes.fs.symlinkSync(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file');
+							if (opts.symlinksNormalize === "none") {
+								_classes.fs.symlinkSync(
+									_classes.fs.readlinkSync(path, 'utf-8'),
+									path_dest(path_source, dest, path, opts.symlinksNormalize),
+									'file'
+								);
+							} else {
+								_classes.fs.symlinkSync(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file');
+							}
 						} catch (err) {
 							cache.errors.push(new Error("Falied to link [File]", { stats: stats, dest: dest, path: path, err: err }));
 						}
