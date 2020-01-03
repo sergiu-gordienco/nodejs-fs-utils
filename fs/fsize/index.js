@@ -3,6 +3,22 @@ var _classes = {
 	path	: require("path")
 };
 
+/**
+ * @typedef {Object} fsizeOptions
+ * @property {Boolean} [symbolicLinks=true] detect symbolic links or treat them as files. Default value is `true`
+ * @property {Boolean} [skipErrors=false] skip errors and return them as an array in callback or interrupt execution on first error. Default value is `false`
+ * @property {Boolean} [logErrors=false] log detected errors in console. Default value is `false`
+ * @property {Boolean} [countFolders=true] count size of folders inodes. Default value is `true`
+ * @property {Boolean} [countSymbolicLinks=true] count size of symbolic link inodes. Default value is `true`
+ * @property {import('fs')} [fs] user specific file system
+ */
+
+/**
+ * calculate size of a file or directory
+ * @param {String} path path of the file or folder
+ * @param {fsizeOptions} opts additional options
+ * @param {function(Error|Error[], Number):void} callback function that is called when size is calculated
+ */
 var fsize = function(path, opts, callback) {
 	var fs;
 	var separator = _classes.path.sep;
@@ -11,7 +27,7 @@ var fsize = function(path, opts, callback) {
 		callback	= opts;
 		opts	= {};
 	}
-	
+
 	if (typeof(opts) !== "object") {
 		opts	= {};
 	}
@@ -37,7 +53,7 @@ var fsize = function(path, opts, callback) {
 
 	if (!fs)
 		fs	= opts.fs || _classes.fs;
-	
+
 	var count	= 0;
 	var wait	= 0;
 	var size	= 0;
@@ -93,6 +109,13 @@ var fsize = function(path, opts, callback) {
 	_next(path);
 };
 
+
+/**
+ * calculate size of a file or directory synchronously
+ * @param {String} path path of the file or folder
+ * @param {fsizeOptions} opts additional options
+ * @returns {Number}
+ */
 var fsizeSync = function(path, opts) {
 	var fs;
 	var separator = _classes.path.sep;
@@ -101,7 +124,7 @@ var fsizeSync = function(path, opts) {
 		callback	= opts;
 		opts	= {};
 	}
-	
+
 	if (typeof(opts) !== "object") {
 		opts	= {};
 	}
@@ -127,7 +150,7 @@ var fsizeSync = function(path, opts) {
 
 	if (!fs)
 		fs	= opts.fs || _classes.fs;
-	
+
 	var size	= 0;
 	var errors	= [];
 	var errorsSend	= false;

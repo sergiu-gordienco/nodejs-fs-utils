@@ -1,9 +1,27 @@
 var _classes = {
 	fs	: require("fs"),
-	fsu	: require(__dirname + "/../../lib.js")(['mkdirs']),
+	fsu	: {
+		mkdirs     : require('../mkdirs'),
+		mkdirsSync : require('../mkdirs').sync
+	},
 	path	: require("path")
 };
 
+/**
+ * @typedef {Object} createFileOptions
+ *
+ * @property {Number} mode file permissions for new created folders. default value is `0777 & ~process.umask()`
+ * @property {Number} fileMode file permissions for new created folders. default value is `0666`
+ * @property {Boolean} [symbolicLinks=true] support symbolic links or throw error if one detected
+ * @property {import('fs')} [fs] user specific file system
+ */
+
+/**
+ * create a file and parent folders if needed
+ * @param {String} path filePath
+ * @param {createFileOptions} opts additional options
+ * @param {function(Error):void} callback
+ */
 var createFile	= function (path, opts, callback) {
 	var file	= _classes.path.normalize(path);
 	var dir		= _classes.path.dirname(file);
@@ -11,21 +29,30 @@ var createFile	= function (path, opts, callback) {
 		callback	= opts;
 		opts		= undefined;
 	}
-	_classes.fs.stat(file, function (err, stats) {
+
+	opts = opts || {};
+	var fs; if (!fs) fs	= opts.fs || _classes.fs;
+
+	var mode = opts.fileMode;
+	if (mode === undefined) {
+		mode = 0666;
+	}
+
+	fs.stat(file, function (err, stats) {
 		if (err) {
 			_classes.fsu.mkdirs(dir, function (err) {
 				if (err) {
 					callback(err);
 				} else {
-					_classes.fs.open(file, 'a', function (err, fd) {
+					fs.open(file, 'a', mode, function (err, fd) {
 						if (err) {
 							callback(err);
 						} else {
-							_classes.fs.close(fd, callback);
+							fs.close(fd, callback);
 						}
 					});
 				}
-			});
+			}, opts);
 		} else {
 			if (stats.isFile()) {
 				// already exists
@@ -44,17 +71,25 @@ createFile.sync	= function (path, opts) {
 		callback	= opts;
 		opts		= undefined;
 	}
+	opts = opts || {};
+	var fs; if (!fs) fs	= opts.fs || _classes.fs;
+
+	var mode = opts.fileMode;
+	if (mode === undefined) {
+		mode = 0666;
+	}
+
 	var err;
 	try {
-		var stats	= _classes.fs.statSync(file);
+		var stats	= fs.statSync(file);
 		if (stats.isFile()) {
 			// already exists
 		} else {
 			throw Error("NONFILE_ALREADY_EXISTS");
 		}
 	} catch (err) {
-		_classes.fsu.mkdirsSync(dir);
-		_classes.fs.closeSync(_classes.fs.openSync(file, 'a'));
+		_classes.fsu.mkdirsSync(dir, opts);
+		fs.closeSync(fs.openSync(file, 'a', mode));
 	}
 };
 

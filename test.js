@@ -13,7 +13,7 @@ fsu.removeSync('dtest-sync-moved', {
 	skipErrors	: true
 });
 
-fsu.copy('./node_modules', './dtest', function (err) {
+fsu.copy('./test_files', './dtest', function (err) {
 	if (err) {
 		console.error(err);
 	} else {
@@ -78,12 +78,14 @@ fsu.copy('./node_modules', './dtest', function (err) {
 });
 var err;
 try {
-	fsu.copySync('./node_modules', './dtest-sync', function (err) {
+	fsu.copySync('./test_files', './dtest-sync', function (err) {
 		if (err) {
 			console.error(err);
 		} else {
 			console.log('[dtest] copied...');
 		}
+	}, {
+		symlinksNormalize: "none"
 	});
 	fsu.moveSync('./dtest-sync', './dtest-sync-moved', function (err) {
 		if (err) {
@@ -108,4 +110,5 @@ try {
 	console.log("dtest-sync-moved removed...")
 } catch (err) {
 	console.error(err);
+	process.exit(1);
 }

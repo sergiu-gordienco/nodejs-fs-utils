@@ -2,7 +2,42 @@ var _classes = {
 	fs	: require("fs"),
 	path	: require("path")
 };
+/**
+ * @typedef {Object} walkCache
+ * @property {String[]} stack current size of stack paths that should be processed
+ * @property {Number} wait current number of elements that are processed right now
+ * @property {Number} count current count of detected elements ( files, directories or symlinks ) except error cases
+ * @property {Number} files current count of detected files
+ * @property {Number} dirs current count of detected directories
+ * @property {Number} fsnodes current count of detected directories include items with errors
+ * @property {Error[]} errors all errors that were detected during processing
+ */
 
+/**
+ * @callback walkCallback
+ * @param {Error} err error if occurred
+ * @param {String} path current processed path
+ * @param {import('fs').Stats} stats current FileSystem Stats
+ * @param {Function} next require call of next processing
+ * @param {walkCache} cache cache statistics
+ */
+
+/**
+ * @typedef {Object} walkOptions
+ * @property {Boolean} [symbolicLinks=true] support symbolic links, default value is `true`
+ * @property {Boolean} [skipErrors=false] if is set to `true`, then processing will not be interrupted by errors, default value is `false`
+ * @property {Boolean} [logErrors=false] if is set to `true`, then all errors will be shown in console, default value is `false`
+ * @property {Boolean} [stackPushEnd=false] indicate where to push new detected folders in the end or on the beginning of stack, default value is `false`
+ * @property {import('fs')} [fs] user specific file system
+ */
+
+/**
+ * walk through file system tree
+ * @param {String} path root path
+ * @param {walkOptions} opts additional options applied
+ * @param {walkCallback} callback callback that receives current processed file
+ * @param {function(Error|Error[], walkCache):void} onend_callback
+ */
 var walk = function(path, opts, callback, onend_callback) {
 	path = _classes.path.normalize(path);
 	var fs;
@@ -119,6 +154,13 @@ var walk = function(path, opts, callback, onend_callback) {
 	_tick();
 };
 
+/**
+ * walk through file system tree synchronously
+ * @param {String} path root path
+ * @param {walkOptions} opts additional options applied
+ * @param {walkCallback} callback callback that receives current processed file
+ * @param {function(Error|Error[], walkCache):void} onend_callback
+ */
 var walkSync = function(path, opts, callback, onend_callback) {
 	path = _classes.path.normalize(path);
 	var fs;
@@ -163,7 +205,6 @@ var walkSync = function(path, opts, callback, onend_callback) {
 		errors	: []
 	};
 
-	var errorsSend	= false;
 	var _tick	= function (err, path, stats, next) {
 		if (cache.errors.length && !opts.skipErrors) {
 			throw(cache.errors[0]);
@@ -222,7 +263,6 @@ var walkSync = function(path, opts, callback, onend_callback) {
 };
 
 
-walk.walk	= walk;
 walk.sync	= walkSync;
 
 module.exports = walk;

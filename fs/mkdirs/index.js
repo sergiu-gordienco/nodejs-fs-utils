@@ -3,6 +3,21 @@ var fs = require('fs');
 
 module.exports = mkdirs.mkdirs = mkdirs;
 
+/**
+ * @typedef {Object} mkdirsOptions
+ *
+ * @property {Number} mode file permissions for new created folders. default value is `0777 & ~process.umask()`
+ * @property {Boolean} [symbolicLinks=true] support symbolic links or throw error if one detected
+ * @property {import('fs')} [fs] user specific file system
+ */
+
+/**
+ * created a folder and its parents if needed
+ * @param {String} p path of the folder
+ * @param {mkdirsOptions} opts additional options
+ * @param {function(Error, String):void} f
+ * @param {Boolean} last_path return last created path
+ */
 function mkdirs (p, opts, f, last_path) {
 	if (typeof opts === 'function') {
 		f = opts;
@@ -11,10 +26,10 @@ function mkdirs (p, opts, f, last_path) {
 	else if (!opts || typeof opts !== 'object') {
 		opts = { mode: opts };
 	}
-	
+
 	/**
 	 * adding safe version without that will throw exception on links
-	 * excuding writing in other place
+	 * excluding writing in other place
 	 */
 	if (typeof(opts.symbolicLinks) === "undefined") {
 		opts.symbolicLinks	= true;
@@ -22,16 +37,15 @@ function mkdirs (p, opts, f, last_path) {
 
 	var mode = opts.mode;
 	var xfs = opts.fs || fs;
-	
+
 	if (mode === undefined) {
 		mode = 0777 & (~process.umask());
 	}
 	if (!last_path) last_path = null;
-	
+
 	var cb = f || function () {};
 	p = path.resolve(p);
-	
-	// console.log("\033[7;32m", p, "\033[0m");
+
 	xfs.mkdir(p, mode, function (er) {
 		if (!er) {
 			last_path = last_path || p;
@@ -54,22 +68,30 @@ function mkdirs (p, opts, f, last_path) {
 	});
 }
 
+
+/**
+ * created a folder and its parents if needed
+ * @param {String} p path of the folder
+ * @param {mkdirsOptions} opts additional options
+ * @param {Boolean} last_path return last created path
+ * @returns {String}
+ */
 mkdirs.sync = function sync (p, opts, last_path) {
 	if (!opts || typeof opts !== 'object') {
 		opts = { mode: opts };
 	}
-	
+
 	/**
 	 * adding safe version without that will throw exception on links
-	 * excuding writing in other place
+	 * excluding writing in other place
 	 */
 	if (typeof(opts.symbolicLinks) === "undefined") {
 		opts.symbolicLinks	= true;
 	}
-	
+
 	var mode = opts.mode;
 	var xfs = opts.fs || fs;
-	
+
 	if (mode === undefined) {
 		mode = 0777 & (~process.umask());
 	}

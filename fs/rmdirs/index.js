@@ -2,7 +2,19 @@ var _classes = {
 	fs	: require("fs"),
 	path	: require("path")
 };
+/**
+ * @typedef {Object} rmdirOptions
+ *
+ * @property {Boolean} [skipErrors=false] if is `true` function will not be interrupted by errors, and will remove rest of files, default value is `false`
+ * @property {Boolean} [symbolicLinks=true] support symbolic links
+ */
 
+/**
+ * Remove a folder or file
+ * @param {String} path address of path that should be removed
+ * @param {function(Error | Error[]):void} callback handle when folder was removed, if `opts.skipErrors = true` will receive an array of errors
+ * @param {rmdirOptions} opts additional options
+ */
 var rmdirAsync = function(path, callback, opts) {
 	path = _classes.path.normalize(path);
 	var fs;
@@ -10,7 +22,7 @@ var rmdirAsync = function(path, callback, opts) {
 		callback	= opts;
 		opts	= {};
 	}
-	
+
 	if (typeof(opts) !== "object") {
 		opts	= {};
 	}
@@ -127,6 +139,11 @@ var rmdirAsync = function(path, callback, opts) {
 
 };
 
+/**
+ * Remove a folder or file
+ * @param {String} path address of path that should be removed
+ * @param {rmdirOptions} opts additional options
+ */
 rmdirAsync.sync = function (path, opts) {
 	var fs;
 	path = _classes.path.normalize(path);
@@ -144,7 +161,7 @@ rmdirAsync.sync = function (path, opts) {
 
 	if (!fs)
 		fs	= opts.fs || _classes.fs;
-	
+
 	var err;
 	try {
 		var stats = fs[opts.symbolicLinks ? 'lstatSync' : 'statSync'](path);
@@ -176,7 +193,7 @@ rmdirAsync.sync = function (path, opts) {
 		}
 	}
 	var wait = files.length;
-	
+
 	// Remove one or more trailing slash to keep from doubling up
 	path = path.replace(/\/+$/,"");
 	files.forEach(function(file) {

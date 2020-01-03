@@ -1,34 +1,36 @@
 var _classes = {
 	fs	: require("fs"),
-	fsu	: require(__dirname + "/../../lib.js")(['copy', 'rmdirs']),
+	fsu	: {
+		copy       : require('../copy'),
+		copySync   : require('../copy').sync,
+		rmdirs     : require('../rmdirs'),
+		rmdirsSync : require('../rmdirs').sync
+	},
 	path	: require("path")
 };
-
-var moveFile = function (path_source, path_dest, callback) {
-	var err, callback_sent	= false;
-	try {
-		var source = _classes.fs.createReadStream(path_source);
-		var dest = _classes.fs.createWriteStream(path_dest);
-		source.pipe(dest);
-		source.on('end', function() {
-			if (!callback_sent) {
-				callback();
-			}
-		});
-		source.on('error', function(err) {
-			if (!callback_sent) {
-				callback();
-			}
-		});
-	} catch (err) {
-		if (!callback_sent) {
-			callback();
-		}
-	}
-};
-
+/**
+ * @typedef {Object} moveOptions
+ * @property {("file"|"directory"|"all")} [keepSymlinks="all"] keep symlinks, default value is `"all"`
+ * @property {("auto"|"none"|"relative"|"absolute")} [symlinksNormalize="auto"] transform and normalize symlinks, default value is `auto`
+ * @property {("auto"|"none"|"relative"|"absolute")} [linkFiles="none"] link files instead of copy them, default value is `none`
+ *
+ * @property {Boolean} [symbolicLinks=true] support symbolic links, default value is `true`
+ * @property {Boolean} [skipErrors=false] if is set to `true`, then processing will not be interrupted by errors, default value is `false`
+ * @property {Boolean} [logErrors=false] if is set to `true`, then all errors will be shown in console, default value is `false`
+ * @property {Boolean} [stackPushEnd=false] indicate where to push new detected folders in the end or on the beginning of stack, default value is `false`
+ * @property {import('fs')} [fs] user specific file system
+ */
+/**
+ * move a file or folder from one path to another path, it will try to move file if it is not possible it will copy it and remove source
+ * @param {String} oldPath source path
+ * @param {String} newPath destination path
+ * @param {function (Error|Error[]):void} callback handle when moving is finished
+ * @param {moveOptions} opts additional options that will be used if moving will not be possible using system action
+ */
 var move	= function (oldPath, newPath, callback, opts) {
-	_classes.fs.rename(oldPath, newPath, function (err) {
+	opts = opts || {};
+	var fs = opts.fs || _classes.fs;
+	fs.rename(oldPath, newPath, function (err) {
 		if (err) {
 			if (err.code === 'EXDEV') {
 				// copy and unlink
@@ -36,19 +38,28 @@ var move	= function (oldPath, newPath, callback, opts) {
 					if (err && !Array.isArray(err)) {
 						callback(err);
 					} else {
-						_classes.fsu.rmdirs(oldPath);
+						_classes.fsu.rmdirs(
+							oldPath,
+							callback,
+							opts
+						);
 					}
 				}, opts);
 			} else {
 				callback(err);
 			}
-			return;
 		} else {
 			callback();
 		}
 	});
 };
 
+/**
+ * move a file or folder from one path to another path, it will try to move file if it is not possible it will copy it and remove source
+ * @param {String} oldPath source path
+ * @param {String} newPath destination path
+ * @param {moveOptions} opts additional options that will be used if moving will not be possible using system action
+ */
 move.sync	= function (oldPath, newPath, opts) {
 	var err;
 	try {
