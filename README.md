@@ -2,7 +2,7 @@
 
 > NodeJs FileSystem (FS) extra utilities
 
-![build-passing](https://img.shields.io/badge/build-passing-brightgreen.svg) ![dependencies: up-to-date](https://img.shields.io/badge/dependencies-up--to--date-brightgreen.svg) ![status: stable](https://img.shields.io/badge/status-stable-brightgreen.svg) ![downloads: 3k / month](https://img.shields.io/badge/downloads-3k%2Fmonth-brightgreen.svg)
+![build-passing](https://img.shields.io/badge/build-passing-brightgreen.svg) ![dependencies: up-to-date](https://img.shields.io/badge/dependencies-up--to--date-brightgreen.svg) ![status: stable](https://img.shields.io/badge/status-stable-brightgreen.svg) ![downloads: 3k / month](https://img.shields.io/badge/downloads-5k%2Fmonth-brightgreen.svg)
 
 ![mail-sergiu.gordienco@gmail.com](https://img.shields.io/badge/author-sergiu.gordienco@gmail.com-blue.svg)
 
