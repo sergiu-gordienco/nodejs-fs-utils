@@ -18,7 +18,6 @@ let _classes = {
 var copyFile	= function (source, target, cb, fs) {
 	var cbCalled = false;
 	fs = fs || _classes.fs;
-	// console.log(source, " » ", target);
 	var rd = fs.createReadStream(source);
 	rd.on("error", function(err) {
 		done(err, "read-error");
@@ -361,7 +360,6 @@ var copySync = function(path_source, dest, callback, opts) {
 									'file'
 								);
 							} else {
-								console.log(path, path_dest(path_source, dest, path, opts.symlinksNormalize));
 								fs.symlinkSync(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file');
 							}
 						} catch (err) {
