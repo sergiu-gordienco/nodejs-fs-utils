@@ -164,26 +164,41 @@ function copy(path_source, dest, callback, opts) {
 				} else {
 					if (stats.isDirectory()) {
 						if (opts.keepSymlinks === "directory" || opts.keepSymlinks === "all") {
-							if (opts.symlinksNormalize === "none") {
+							if (opts.symlinksNormalize === "none" || opts.symlinksNormalize === "relative") {
 								fs.readlink(path, 'utf-8', function (err, symlinkPath) {
 									if (err) {
-										cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
-									} else {
+										cache.errors.push(new Error("Falied to link [Directory] " + path, { stats: stats, dest: dest, path: path, err: err }));
 										symlinkPath = path;
 									}
-									fs.symlink(symlinkPath, path_dest(path_source, dest, path, opts.symlinksNormalize), 'dir', function (err) {
+									let destPath = path_dest(path_source, dest, path);
+									let symlinkPathAbsolute = _classes.path.resolve(_classes.path.dirname(path), symlinkPath)
+									if (opts.symlinksNormalize === "absolute") {
+										symlinkPath = symlinkPathAbsolute;
+									} else if (opts.symlinksNormalize === "relative") {
+										symlinkPath = _classes.path.relative(
+											_classes.path.dirname(path),
+											symlinkPathAbsolute
+										);
+									}
+									fs.symlink(symlinkPath, destPath, 'dir', function (err) {
 										if (err) {
-											cache.errors.push(new Error("Falied to link [Directory]", { stats: stats, path: path, dest: dest, err: err }));
+											cache.errors.push(new Error("Falied to link [Directory] " + path, { stats: stats, dest: dest, path: path, err: err }));
 										}
 										next();
 									});
 								});
 							} else {
-								fs.symlink(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'dir', function (err) {
+								fs.readlink(path, 'utf-8', function (err, symlinkPath) {
 									if (err) {
-										cache.errors.push(new Error("Falied to link [Directory]", { stats: stats, path: path, dest: dest, err: err }));
+										cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
+										symlinkPath = path;
 									}
-									next();
+									fs.symlink(symlinkPath, path_dest(path_source, dest, path), 'dir', function (err) {
+										if (err) {
+											cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
+										}
+										next();
+									});
 								});
 							}
 						} else {
@@ -197,14 +212,23 @@ function copy(path_source, dest, callback, opts) {
 					} else {
 						// for file and other types
 						if (opts.keepSymlinks === "file" || opts.keepSymlinks === "all") {
-							if (opts.symlinksNormalize === "none") {
+							if (opts.symlinksNormalize === "none" || opts.symlinksNormalize === "relative" || opts.symlinksNormalize === "absolute") {
 								fs.readlink(path, 'utf-8', function (err, symlinkPath) {
 									if (err) {
 										cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
-									} else {
 										symlinkPath = path;
 									}
-									fs.symlink(symlinkPath, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file', function (err) {
+									let destPath = path_dest(path_source, dest, path);
+									let symlinkPathAbsolute = _classes.path.resolve(_classes.path.dirname(path), symlinkPath)
+									if (opts.symlinksNormalize === "absolute") {
+										symlinkPath = symlinkPathAbsolute;
+									} else if (opts.symlinksNormalize === "relative") {
+										symlinkPath = _classes.path.relative(
+											_classes.path.dirname(path),
+											symlinkPathAbsolute
+										);
+									}
+									fs.symlink(symlinkPath, destPath, 'file', function (err) {
 										if (err) {
 											cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
 										}
@@ -212,11 +236,17 @@ function copy(path_source, dest, callback, opts) {
 									});
 								});
 							} else {
-								fs.symlink(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file', function (err) {
+								fs.readlink(path, 'utf-8', function (err, symlinkPath) {
 									if (err) {
 										cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
+										symlinkPath = path;
 									}
-									next();
+									fs.symlink(symlinkPath, path_dest(path_source, dest, path), 'file', function (err) {
+										if (err) {
+											cache.errors.push(new Error("Falied to link [File] " + path, { stats: stats, dest: dest, path: path, err: err }));
+										}
+										next();
+									});
 								});
 							}
 						} else {
@@ -328,14 +358,35 @@ var copySync = function(path_source, dest, callback, opts) {
 				if (stats.isDirectory()) {
 					if (opts.keepSymlinks === "directory" || opts.keepSymlinks === "all") {
 						try {
-							if (opts.symlinksNormalize === "none") {
+							if (opts.symlinksNormalize === "none" || opts.symlinksNormalize === "relative" || opts.symlinksNormalize === "absolute") {
+								let destPath = path_dest(path_source, dest, path);
+								let symlinkPath = fs.readlinkSync(path, 'utf-8');
+								let symlinkPathAbsolute = _classes.path.resolve(_classes.path.dirname(path), symlinkPath)
+								if (opts.symlinksNormalize === "absolute") {
+									symlinkPath = symlinkPathAbsolute;
+								} else if (opts.symlinksNormalize === "relative") {
+									symlinkPath = _classes.path.relative(
+										_classes.path.dirname(path),
+										symlinkPathAbsolute
+									);
+								}
+								// let createTemporar = false;
+								// let symlinkDestPathAbsolute = _classes.path.resolve(_classes.path.dirname(destPath), symlinkPath);
+								// if (!fs.existsSync(symlinkDestPathAbsolute)) {
+								// 	fs.writeFileSync(symlinkDestPathAbsolute, '', 'w');
+								// 	createTemporar = true;
+								// }
+								
 								fs.symlinkSync(
-									fs.readlinkSync(path, 'utf-8'),
-									path_dest(path_source, dest, path, opts.symlinksNormalize),
+									symlinkPath,
+									destPath,
 									'dir'
 								);
+								// if (createTemporar) {
+								// 	fs.unlinkSync(symlinkDestPathAbsolute);
+								// }
 							} else {
-								fs.symlinkSync(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'dir');
+								fs.symlinkSync(fs.readlinkSync(path), path_dest(path_source, dest, path), 'dir');
 							}
 						} catch (err) {
 							cache.errors.push(new Error("Falied to link [Directory]", { stats: stats, path: path, dest: dest, err: err }));
@@ -353,14 +404,35 @@ var copySync = function(path_source, dest, callback, opts) {
 					// for file and other types
 					if (opts.keepSymlinks === "file" || opts.keepSymlinks === "all") {
 						try {
-							if (opts.symlinksNormalize === "none") {
+							if (opts.symlinksNormalize === "none" || opts.symlinksNormalize === "relative" || opts.symlinksNormalize === "absolute") {
+								let destPath = path_dest(path_source, dest, path);
+								let symlinkPath = fs.readlinkSync(path, 'utf-8');
+								let symlinkPathAbsolute = _classes.path.resolve(_classes.path.dirname(path), symlinkPath)
+								if (opts.symlinksNormalize === "absolute") {
+									symlinkPath = symlinkPathAbsolute;
+								} else if (opts.symlinksNormalize === "relative") {
+									symlinkPath = _classes.path.relative(
+										_classes.path.dirname(path),
+										symlinkPathAbsolute
+									);
+								}
+								// let createTemporar = false;
+								// let symlinkDestPathAbsolute = _classes.path.resolve(_classes.path.dirname(destPath), symlinkPath);
+								// if (!fs.existsSync(symlinkDestPathAbsolute)) {
+								// 	fs.writeFileSync(symlinkDestPathAbsolute, '', 'w');
+								// 	createTemporar = true;
+								// }
+								
 								fs.symlinkSync(
-									fs.readlinkSync(path, 'utf-8'),
-									path_dest(path_source, dest, path, opts.symlinksNormalize),
+									symlinkPath,
+									destPath,
 									'file'
 								);
+								// if (createTemporar) {
+								// 	fs.unlinkSync(symlinkDestPathAbsolute);
+								// }
 							} else {
-								fs.symlinkSync(path, path_dest(path_source, dest, path, opts.symlinksNormalize), 'file');
+								fs.symlinkSync(fs.readlinkSync(path), path_dest(path_source, dest, path), 'file');
 							}
 						} catch (err) {
 							cache.errors.push(new Error("Falied to link [File] \""+ path +"\" » \""+ dest +"\" ", { stats: stats, dest: dest, path: path, err: err }));
