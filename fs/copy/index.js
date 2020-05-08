@@ -311,11 +311,13 @@ var copySync = function(path_source, dest, callback, opts) {
 	var separator = _classes.path.sep;
 
 	var fs;
-	if (!fs) fs	= opts.fs || _classes.fs;
-
+	
 	if (typeof(opts) !== "object") {
 		opts	= {};
 	}
+
+	if (!fs) fs	= opts.fs || _classes.fs;
+	
 	if (typeof(opts.symlinksKeep) === "undefined") {
 		// file / directory / all
 		opts.keepSymlinks	= "all";
