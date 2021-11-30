@@ -48,7 +48,7 @@ var rmdirAsync = function(path, callback, opts) {
 				callback(err);
 			}
 		} else {
-			if (!stats.isDirectory()) {
+			if (!stats.isDirectory() || stats.isSymbolicLink()) {
 				fs.unlink(path, function (err) {
 					if (err) {
 						if (opts.skipErrors) {
